@@ -11,6 +11,8 @@ namespace AppCrud.Data
         public DbSet<User> Users { get; set; }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<Feature> Features { get; set; }
+        public DbSet<WishProduct> WishProducts { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // base.OnModelCreating(modelBuilder);
@@ -26,7 +28,7 @@ namespace AppCrud.Data
                 tb.Property(col => col.Email).HasMaxLength(50);
                 
             });
-            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<User>().ToTable("Users");
 
             modelBuilder.Entity<Product>(tb =>
             {
@@ -52,6 +54,7 @@ namespace AppCrud.Data
                 .ValueGeneratedOnAdd();
 
                 tb.Property(col => col.FeatureName).HasMaxLength(200);
+
                
             });
 
@@ -67,7 +70,7 @@ namespace AppCrud.Data
                
             });
 
-            modelBuilder.Entity<Feature>().ToTable("Feature");
+            modelBuilder.Entity<WishProduct>().ToTable("WishProduct");
         }
         
        
