@@ -57,36 +57,42 @@ namespace AppCrud.Controllers
         }
 
         [HttpPost("{productId}/wishes")]
-         public async Task<IActionResult> AddWishes(int productId, int userId)
-         {
-             var producto = await _appDbContext.Products.FindAsync(productId);
-             var usuario = await _appDbContext.Users.FindAsync(userId);
+public async Task<IActionResult> AddWishes(int productId, [FromBody] AddWishRequest request)
+{
+    if (request == null)
+    {
+        return BadRequest("La solicitud es inválida.");
+    }
 
-             if (producto == null || usuario == null)
-             {
-                 return NotFound();
-             }
+    var producto = await _appDbContext.Products.FindAsync(productId);
+    var usuario = await _appDbContext.Users.FindAsync(request.UserId);
 
-             // Verificar si el producto ya está en la lista de deseos
-             var productoDeseadoExistente = await _appDbContext.WishProducts
-                 .FirstOrDefaultAsync(pd => pd.IdProduct == productId && pd.IdUser == userId);
+    if (producto == null || usuario == null)
+    {
+        return NotFound();
+    }
 
-             if (productoDeseadoExistente != null)
-             {
-                 return BadRequest("El producto ya está en la lista de deseos.");
-             }
+    // Verificar si el producto ya está en la lista de deseos
+    var productoDeseadoExistente = await _appDbContext.WishProducts
+        .FirstOrDefaultAsync(pd => pd.IdProduct == productId && pd.IdUser == request.UserId);
 
-             var productoDeseado = new WishProduct
-             {
-                 Product = producto,
-                 User = usuario
-             };
+    if (productoDeseadoExistente != null)
+    {
+        return BadRequest("El producto ya está en la lista de deseos.");
+    }
 
-            _appDbContext.WishProducts.Add(productoDeseado);
-             await _appDbContext.SaveChangesAsync();
+    var productoDeseado = new WishProduct
+    {
+        Product = producto,
+        User = usuario
+    };
 
-             return Ok();
-         }
+    _appDbContext.WishProducts.Add(productoDeseado);
+    await _appDbContext.SaveChangesAsync();
+
+    return Ok();
+}
+
 
         [HttpDelete("{productoId}/wishes")]
         public async Task<IActionResult> DeleteWishes(int productoId, int usuarioId)
@@ -121,5 +127,10 @@ namespace AppCrud.Controllers
 
             return usuario.WishProducts.Select(pd => pd.Product).ToList();
         }
+    }
+
+    public class AddWishRequest
+    {
+        public int UserId { get; set; }
     }
 }
